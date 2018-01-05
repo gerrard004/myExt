@@ -1,0 +1,85 @@
+// api文档
+// https://developer.chrome.com/extensions/manifest
+{
+  // 必填项
+  "manifest_version": 2,
+  "name": "崔旭",
+  "version": "0.0.1",
+
+  // 推荐项
+  // "default_locale": "en", // Default locale was specified, but _locales subtree is missing.
+  "description": "这个是个描述信息",
+  // 这个图标是用于在chrome://extensions/页面显示使用的图标 未设置browser_action图标时会灰化显示在工具栏处
+  "icons":
+  {
+    "16": "img/icon16.png",
+    "48": "img/icon48.png",
+    "128": "img/icon128.png"
+  },
+
+  //浏览器右上角图标设置，browser_action、page_action、app必须三选一
+  "browser_action": {
+    // 工具栏显示的图标
+    "default_icon": {
+      "19": "img/icon19.png",
+      "38": "img/icon38.png"
+    },
+    // 右上角工具栏悬停标题 不设置则显示name
+    "default_title": "崔旭开发的一个小例子",
+    "default_popup": "demo/demo0/popup.html"
+  },
+
+  // 需要直接注入目标页面的配置
+  // 1.同样的网站多次注入时 代码可以复用 与数组顺序无关
+  "content_scripts":
+  [
+    {
+      //"matches": ["http://*/*", "https://*/*"],
+      // "<all_urls>" 表示匹配所有地址 必填
+      "matches": ["<all_urls>"],
+      // 例外 不匹配的页面 可选
+      "exclude_matches": ["*://www.baidu.com/*"],
+      // 多个JS按顺序注入 可选
+      "js": ["script/jquery-3.2.1.min.js", "script/string.js"],
+      // JS的注入可以随便一点，但是CSS的注意就要千万小心了，因为一不小心就可能影响全局样式 可选
+      "css": ["css/common.css"],
+      // about:blank and about:srcdoc 时是否触发 默认false 可选
+      "match_about_blank" : true,
+      // 代码注入的时间，可选值： "document_start", "document_end", or "document_idle"，最后一个表示页面空闲时，默认document_idle 可选
+      // document_end dom加载完毕 frame img 加载前
+      // document_idle 选择时间在document_end 和window.onload 后立即执行。准确的注入时间取决于文档的复杂程度以及加载时间，并针对页面加载速度进行了优化。
+      "run_at": "document_idle",
+      // 多个frame的话重复触发 默认false 只匹配 top frame
+      "all_frames": false
+      // include_globs exclude_globs 表达式语法更灵活 可使用?通配符
+    },
+    // 这里仅仅是为了演示content-script可以配置多个规则
+    {
+      "matches": ["*://*/*.js", "*://*/*.jpg", "*://*/*.gif", "*://*/*.bmp"],
+      "js": ["script/string.js"]
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["js/demo.js"]
+    }
+  ],
+  // https://developer.chrome.com/extensions/declare_permissions
+  "permissions": [
+    "contextMenus", // 右键菜单
+    "tabs", // 标签
+    "notifications", // 通知
+    "webRequest", // web请求
+    "webRequestBlocking",
+    "storage", // 插件本地存储
+    "http://*/*", // 可以通过executeScript或者insertCSS访问的网站
+    "https://*/*" // 可以通过executeScript或者insertCSS访问的网站
+  ],
+  // 会一直常驻的后台JS或后台页面(二选一)
+  "background":
+  {
+    // 2种指定方式，如果指定JS，那么会自动生成一个背景页
+    // "page": "demo/background/popup.html",
+    "scripts": ["demo/background/js/main.js"]
+  }
+
+}
